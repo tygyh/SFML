@@ -171,12 +171,11 @@ public:
     /// the window previously active (if any) automatically gets deactivated.
     /// This is not to be confused with `requestFocus()`.
     ///
-    /// \param active `true` to activate, `false` to deactivate
-    ///
     /// \return `true` if operation was successful, `false` otherwise
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool setActive(bool active = true) override;
+    [[nodiscard]] bool activate() override;
+    [[nodiscard]] bool deactivate() override;
 
 protected:
     ////////////////////////////////////////////////////////////

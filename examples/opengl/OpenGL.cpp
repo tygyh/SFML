@@ -86,7 +86,7 @@ int main()
         (void)texture.generateMipmap();
 
         // Make the window the active window for OpenGL calls
-        if (!window.setActive(true))
+        if (!window.activate())
         {
             std::cerr << "Failed to set window to active" << std::endl;
             return EXIT_FAILURE;
@@ -188,7 +188,7 @@ int main()
         glDisableClientState(GL_COLOR_ARRAY);
 
         // Make the window no longer the active window for OpenGL calls
-        if (!window.setActive(false))
+        if (!window.deactivate())
         {
             std::cerr << "Failed to set window to inactive" << std::endl;
             return EXIT_FAILURE;
@@ -249,7 +249,7 @@ int main()
                     const sf::Vector2u textureSize = backgroundTexture.getSize();
 
                     // Make the window the active window for OpenGL calls
-                    if (!window.setActive(true))
+                    if (!window.activate())
                     {
                         std::cerr << "Failed to set window to active" << std::endl;
                         return EXIT_FAILURE;
@@ -267,7 +267,7 @@ int main()
 #endif
 
                     // Make the window no longer the active window for OpenGL calls
-                    if (!window.setActive(false))
+                    if (!window.deactivate())
                     {
                         std::cerr << "Failed to set window to inactive" << std::endl;
                         return EXIT_FAILURE;
@@ -286,7 +286,7 @@ int main()
             window.popGLStates();
 
             // Make the window the active window for OpenGL calls
-            if (!window.setActive(true))
+            if (!window.activate())
             {
                 // On failure, try re-creating the window, as it is intentionally
                 // closed when changing color space.
@@ -316,7 +316,7 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
 
             // Make the window no longer the active window for OpenGL calls
-            if (!window.setActive(false))
+            if (!window.deactivate())
             {
                 std::cerr << "Failed to set window to inactive" << std::endl;
                 return EXIT_FAILURE;

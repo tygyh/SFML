@@ -82,26 +82,25 @@ bool RenderWindow::isSrgb() const
 
 
 ////////////////////////////////////////////////////////////
-bool RenderWindow::setActive(bool active)
+bool RenderWindow::activate()
 {
-    bool result = Window::setActive(active);
 
-    // Update RenderTarget tracking
-    if (result)
-        result = active ? RenderTarget::activate() : RenderTarget::deactivate();
+    if (!Window::setActive(true) || !RenderTarget::activate())
+        return false;
 
     // If FBOs are available, make sure none are bound when we
     // try to draw to the default framebuffer of the RenderWindow
-    if (active && result && priv::RenderTextureImplFBO::isAvailable())
-    {
+    if (priv::RenderTextureImplFBO::isAvailable())
         glCheck(GLEXT_glBindFramebuffer(GLEXT_GL_FRAMEBUFFER, m_defaultFrameBuffer));
 
-        return true;
-    }
-
-    return result;
+    return true;
 }
 
+bool RenderWindow::deactivate()
+{
+    // Update RenderTarget tracking
+    return Window::setActive(false) ? RenderTarget::deactivate() : false;
+}
 
 ////////////////////////////////////////////////////////////
 void RenderWindow::onCreate()
