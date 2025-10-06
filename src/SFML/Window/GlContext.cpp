@@ -210,7 +210,7 @@ struct GlContext::SharedContext
 
         loadExtensions();
 
-        context->setActive(false);
+        context->deactivate();
     }
 
     ////////////////////////////////////////////////////////////
@@ -345,7 +345,7 @@ struct GlContext::TransientContext
 
             // Lock the shared context for temporary use
             sharedContextLock = std::unique_lock(sharedContext->mutex);
-            sharedContext->context->setActive(true);
+            sharedContext->context->activate();
         }
     }
 
@@ -356,7 +356,7 @@ struct GlContext::TransientContext
     ~TransientContext()
     {
         if (sharedContextLock)
-            sharedContext->context->setActive(false);
+            sharedContext->context->deactivate();
     }
 
     ////////////////////////////////////////////////////////////
@@ -559,12 +559,12 @@ std::unique_ptr<GlContext> GlContext::create()
     // We don't use acquireTransientContext here since we have
     // to ensure we have exclusive access to the shared context
     // in order to make sure it is not active during context creation
-    sharedContext->context->setActive(true);
+    sharedContext->context->activate();
 
     // Create the context
     context = std::make_unique<ContextType>(&sharedContext->context.value());
 
-    sharedContext->context->setActive(false);
+    sharedContext->context->deactivate();
 
     context->initialize(ContextSettings{});
 
@@ -607,12 +607,12 @@ std::unique_ptr<GlContext> GlContext::create(const ContextSettings& settings, co
     // We don't use acquireTransientContext here since we have
     // to ensure we have exclusive access to the shared context
     // in order to make sure it is not active during context creation
-    sharedContext->context->setActive(true);
+    sharedContext->context->activate();
 
     // Create the context
     context = std::make_unique<ContextType>(&sharedContext->context.value(), settings, owner, bitsPerPixel);
 
-    sharedContext->context->setActive(false);
+    sharedContext->context->deactivate();
 
     context->initialize(settings);
     context->checkSettings(settings);
@@ -654,12 +654,12 @@ std::unique_ptr<GlContext> GlContext::create(const ContextSettings& settings, Ve
     // We don't use acquireTransientContext here since we have
     // to ensure we have exclusive access to the shared context
     // in order to make sure it is not active during context creation
-    sharedContext->context->setActive(true);
+    sharedContext->context->activate();
 
     // Create the context
     auto context = std::make_unique<ContextType>(&sharedContext->context.value(), settings, size);
 
-    sharedContext->context->setActive(false);
+    sharedContext->context->deactivate();
 
     context->initialize(settings);
     context->checkSettings(settings);
@@ -732,60 +732,37 @@ const ContextSettings& GlContext::getSettings() const
 
 
 ////////////////////////////////////////////////////////////
-bool GlContext::setActive(bool active)
+bool GlContext::activate()
 {
     auto& currentContext = GlContextImpl::CurrentContext::get();
 
-    // Make sure we don't try to create the shared context here since
-    // setActive can be called during construction and lead to infinite recursion
-    auto* sharedContext = SharedContext::getWeakPtr().lock().get();
+    if (m_impl->id == currentContext.id)
+        return true; // This context is already the active one on this thread, don't do anything
 
-    if (active)
-    {
-        if (m_impl->id != currentContext.id)
-        {
-            // We can't and don't need to lock when we are currently creating the shared context
-            std::unique_lock<std::recursive_mutex> lock;
+    // Activate the context
+    if (!makeCurrent(true))
+        return false;
 
-            if (sharedContext)
-                lock = std::unique_lock(sharedContext->mutex);
+    // Set it as the new current context for this thread
+    currentContext.id  = m_impl->id;
+    currentContext.ptr = this;
+    return true;
+}
 
-            // Activate the context
-            if (makeCurrent(true))
-            {
-                // Set it as the new current context for this thread
-                currentContext.id  = m_impl->id;
-                currentContext.ptr = this;
-                return true;
-            }
-
-            return false;
-        }
-
-        // This context is already the active one on this thread, don't do anything
-        return true;
-    }
+bool GlContext::deactivate()
+{
+    auto& currentContext = GlContextImpl::CurrentContext::get();
 
     if (m_impl->id == currentContext.id)
-    {
-        // We can't and don't need to lock when we are currently creating the shared context
-        std::unique_lock<std::recursive_mutex> lock;
+        return true; // This context is already the active one on this thread, don't do anything
 
-        if (sharedContext)
-            lock = std::unique_lock(sharedContext->mutex);
-
-        // Deactivate the context
-        if (makeCurrent(false))
-        {
-            currentContext.id  = 0;
-            currentContext.ptr = nullptr;
-            return true;
-        }
-
+    // Activate the context
+    if (!makeCurrent(true))
         return false;
-    }
 
-    // This context is not the active one on this thread, don't do anything
+    // Set it as the new current context for this thread
+    currentContext.id  = m_impl->id;
+    currentContext.ptr = this;
     return true;
 }
 
@@ -847,7 +824,7 @@ void GlContext::cleanupUnsharedResources()
         contextToRestore = nullptr;
 
     // Make this context active so resources can be freed
-    setActive(true);
+    activate();
 
     {
         const std::lock_guard lock(Impl::getUnsharedGlObjectsMutex());
@@ -868,7 +845,7 @@ void GlContext::cleanupUnsharedResources()
 
     // Make the originally active context active again
     if (contextToRestore)
-        contextToRestore->setActive(true);
+        contextToRestore->activate();
 }
 
 
@@ -876,7 +853,7 @@ void GlContext::cleanupUnsharedResources()
 void GlContext::initialize(const ContextSettings& requestedSettings)
 {
     // Activate the context
-    setActive(true);
+    activate();
 
     // Retrieve the context version number
     int majorVersion = 0;

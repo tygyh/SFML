@@ -180,7 +180,7 @@ bool Window::activate() const
     if (!m_context)
         return false;
 
-    if (m_context->setActive(true))
+    if (m_context->activate())
         return true;
 
     err() << "Failed to activate the window's context" << std::endl;
@@ -192,7 +192,7 @@ bool Window::deactivate() const
     if (!m_context)
         return false;
 
-    if (m_context->setActive(false))
+    if (m_context->deactivate())
         return true;
 
     err() << "Failed to activate the window's context" << std::endl;

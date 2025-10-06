@@ -208,12 +208,11 @@ public:
     /// Only one context can be active on a thread at a time, thus
     /// the context previously active (if any) automatically gets deactivated.
     ///
-    /// \param active `true` to activate, `false` to deactivate
-    ///
     /// \return `true` if operation was successful, `false` otherwise
     ///
     ////////////////////////////////////////////////////////////
-    bool setActive(bool active);
+    bool activate();
+    bool deactivate();
 
     ////////////////////////////////////////////////////////////
     /// \brief Display what has been rendered to the context so far

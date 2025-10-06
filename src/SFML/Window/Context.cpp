@@ -89,7 +89,8 @@ Context& Context::operator=(Context&& context) noexcept
 ////////////////////////////////////////////////////////////
 bool Context::setActive(bool active)
 {
-    if (!m_context->setActive(active))
+    const bool isActive = active ? m_context->activate() : m_context->deactivate();
+    if (!isActive)
         return false;
 
     if (active)
