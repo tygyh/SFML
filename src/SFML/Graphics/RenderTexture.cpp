@@ -157,7 +157,7 @@ bool RenderTexture::setActive(bool active)
 {
     // Update RenderTarget tracking
     if (m_impl && m_impl->activate(active))
-        return RenderTarget::setActive(active);
+        return active ? RenderTarget::activate() : RenderTarget::deactivate();
 
     return false;
 }
@@ -172,13 +172,13 @@ void RenderTexture::display()
     if (priv::RenderTextureImplFBO::isAvailable())
     {
         // Perform a RenderTarget-only activation if we are using FBOs
-        if (!RenderTarget::setActive())
+        if (!RenderTarget::activate())
             return;
     }
     else
     {
         // Perform a full activation if we are not using FBOs
-        if (!setActive())
+        if (!activate())
             return;
     }
 

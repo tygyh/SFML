@@ -56,9 +56,8 @@ TEST_CASE("[Graphics] sf::RenderTarget")
     SECTION("setActive()")
     {
         RenderTarget renderTarget;
-        CHECK(renderTarget.setActive());
-        CHECK(renderTarget.setActive(false));
-        CHECK(renderTarget.setActive(true));
+        CHECK(renderTarget.activate());
+        CHECK(renderTarget.deactivate());
     }
 
     const auto makeView = [](const auto& viewport)

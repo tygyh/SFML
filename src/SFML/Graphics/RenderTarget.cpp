@@ -200,7 +200,7 @@ namespace sf
 ////////////////////////////////////////////////////////////
 void RenderTarget::clear(Color color)
 {
-    if (RenderTargetImpl::isActive(m_id) || setActive(true))
+    if (RenderTargetImpl::isActive(m_id) || activate())
     {
         // Unbind texture to fix RenderTexture preventing clear
         applyTexture(nullptr);
@@ -218,7 +218,7 @@ void RenderTarget::clear(Color color)
 ////////////////////////////////////////////////////////////
 void RenderTarget::clearStencil(StencilValue stencilValue)
 {
-    if (RenderTargetImpl::isActive(m_id) || setActive(true))
+    if (RenderTargetImpl::isActive(m_id) || activate())
     {
         // Unbind texture to fix RenderTexture preventing clear
         applyTexture(nullptr);
@@ -236,7 +236,7 @@ void RenderTarget::clearStencil(StencilValue stencilValue)
 ////////////////////////////////////////////////////////////
 void RenderTarget::clear(Color color, StencilValue stencilValue)
 {
-    if (RenderTargetImpl::isActive(m_id) || setActive(true))
+    if (RenderTargetImpl::isActive(m_id) || activate())
     {
         // Unbind texture to fix RenderTexture preventing clear
         applyTexture(nullptr);
@@ -352,7 +352,7 @@ void RenderTarget::draw(const Vertex* vertices, std::size_t vertexCount, Primiti
     if (!vertices || (vertexCount == 0))
         return;
 
-    if (RenderTargetImpl::isActive(m_id) || setActive(true))
+    if (RenderTargetImpl::isActive(m_id) || activate())
     {
         // Check if the vertex count is low enough so that we can pre-transform them
         const bool useVertexCache = (vertexCount <= m_cache.vertexCache.size());
@@ -442,7 +442,7 @@ void RenderTarget::draw(const VertexBuffer& vertexBuffer, std::size_t firstVerte
     if (!vertexCount || !vertexBuffer.getNativeHandle())
         return;
 
-    if (RenderTargetImpl::isActive(m_id) || setActive(true))
+    if (RenderTargetImpl::isActive(m_id) || activate())
     {
         setupDraw(false, states);
 
@@ -480,40 +480,45 @@ bool RenderTarget::isSrgb() const
 
 
 ////////////////////////////////////////////////////////////
-bool RenderTarget::setActive(bool active)
+bool RenderTarget::activate()
 {
     // Mark this RenderTarget as active or no longer active in the tracking map
     const std::lock_guard lock(RenderTargetImpl::getMutex());
 
     const std::uint64_t contextId = Context::getActiveContextId();
 
-    using RenderTargetImpl::getContextRenderTargetMap;
-    auto&      contextRenderTargetMap = getContextRenderTargetMap();
-    const auto it                     = contextRenderTargetMap.find(contextId);
+    auto& contextRenderTargetMap = RenderTargetImpl::getContextRenderTargetMap();
 
-    if (active)
+    if (const auto it = contextRenderTargetMap.find(contextId); it == contextRenderTargetMap.end())
     {
-        if (it == contextRenderTargetMap.end())
-        {
-            contextRenderTargetMap[contextId] = m_id;
+        contextRenderTargetMap[contextId] = m_id;
 
-            m_cache.glStatesSet = false;
-            m_cache.enable      = false;
-        }
-        else if (it->second != m_id)
-        {
-            it->second = m_id;
-
-            m_cache.enable = false;
-        }
+        m_cache.glStatesSet = false;
+        m_cache.enable      = false;
     }
-    else
+    else if (it->second != m_id)
     {
-        if (it != contextRenderTargetMap.end())
-            contextRenderTargetMap.erase(it);
+        it->second = m_id;
 
         m_cache.enable = false;
     }
+
+    return true;
+}
+
+bool RenderTarget::deactivate()
+{
+    // Mark this RenderTarget as active or no longer active in the tracking map
+    const std::lock_guard lock(RenderTargetImpl::getMutex());
+
+    const std::uint64_t contextId = Context::getActiveContextId();
+
+    auto& contextRenderTargetMap = RenderTargetImpl::getContextRenderTargetMap();
+
+    if (const auto it = contextRenderTargetMap.find(contextId); it != contextRenderTargetMap.end())
+        contextRenderTargetMap.erase(it);
+
+    m_cache.enable = false;
 
     return true;
 }
@@ -522,7 +527,7 @@ bool RenderTarget::setActive(bool active)
 ////////////////////////////////////////////////////////////
 void RenderTarget::pushGLStates()
 {
-    if (RenderTargetImpl::isActive(m_id) || setActive(true))
+    if (RenderTargetImpl::isActive(m_id) || activate())
     {
 #ifdef SFML_DEBUG
         // make sure that the user didn't leave an unchecked OpenGL error
@@ -553,7 +558,7 @@ void RenderTarget::pushGLStates()
 ////////////////////////////////////////////////////////////
 void RenderTarget::popGLStates()
 {
-    if (RenderTargetImpl::isActive(m_id) || setActive(true))
+    if (RenderTargetImpl::isActive(m_id) || activate())
     {
         glCheck(glMatrixMode(GL_PROJECTION));
         glCheck(glPopMatrix());
@@ -579,13 +584,13 @@ void RenderTarget::resetGLStates()
 // Workaround for states not being properly reset on
 // macOS unless a context switch really takes place
 #if defined(SFML_SYSTEM_MACOS)
-    if (!setActive(false))
+    if (!deactivate())
     {
         err() << "Failed to set render target inactive" << std::endl;
     }
 #endif
 
-    if (RenderTargetImpl::isActive(m_id) || setActive(true))
+    if (RenderTargetImpl::isActive(m_id) || activate())
     {
         // Make sure that extensions are initialized
         priv::ensureExtensionsInit();

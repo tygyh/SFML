@@ -375,12 +375,11 @@ public:
     /// target will automatically deactivate the previously active
     /// context (if any).
     ///
-    /// \param active `true` to activate, `false` to deactivate
-    ///
     /// \return `true` if operation was successful, `false` otherwise
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] virtual bool setActive(bool active = true);
+    [[nodiscard]] virtual bool activate();
+    [[nodiscard]] virtual bool deactivate();
 
     ////////////////////////////////////////////////////////////
     /// \brief Save the current OpenGL render states and matrices
