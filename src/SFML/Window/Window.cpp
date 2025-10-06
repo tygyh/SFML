@@ -159,7 +159,7 @@ const ContextSettings& Window::getSettings() const
 ////////////////////////////////////////////////////////////
 void Window::setVerticalSyncEnabled(bool enabled)
 {
-    if (setActive())
+    if (activate())
         m_context->setVerticalSyncEnabled(enabled);
 }
 
@@ -175,28 +175,35 @@ void Window::setFramerateLimit(unsigned int limit)
 
 
 ////////////////////////////////////////////////////////////
-bool Window::setActive(bool active) const
+bool Window::activate() const
 {
-    if (m_context)
-    {
-        if (m_context->setActive(active))
-        {
-            return true;
-        }
-
-        err() << "Failed to activate the window's context" << std::endl;
+    if (!m_context)
         return false;
-    }
 
+    if (m_context->setActive(true))
+        return true;
+
+    err() << "Failed to activate the window's context" << std::endl;
     return false;
 }
 
+bool Window::deactivate() const
+{
+    if (!m_context)
+        return false;
+
+    if (m_context->setActive(false))
+        return true;
+
+    err() << "Failed to activate the window's context" << std::endl;
+    return false;
+}
 
 ////////////////////////////////////////////////////////////
 void Window::display()
 {
     // Display the backbuffer on screen
-    if (setActive())
+    if (activate())
         m_context->display();
 
     // Limit the framerate if needed
@@ -219,7 +226,7 @@ void Window::initialize()
     m_clock.restart();
 
     // Activate the window
-    if (!setActive())
+    if (!activate())
     {
         err() << "Failed to set window as active during initialization" << std::endl;
     }

@@ -24,7 +24,7 @@
 [[nodiscard]] bool initialize(sf::Window& window)
 {
     // Activate the window
-    if (!window.setActive())
+    if (!window.activate())
     {
         std::cerr << "Failed to set the window as active" << std::endl;
         return false;
@@ -76,7 +76,7 @@
 [[nodiscard]] bool draw(sf::Window& window, float elapsedTime)
 {
     // Activate the window
-    if (!window.setActive())
+    if (!window.activate())
     {
         std::cerr << "Failed to set the window as active" << std::endl;
         return false;
@@ -227,7 +227,7 @@ int main()
     const sf::Clock clock;
 
     // Load OpenGL or OpenGL ES entry points using glad
-    if (!sfmlView1.setActive())
+    if (!sfmlView1.activate())
     {
         std::cerr << "Failed to set view 1 as active" << std::endl;
         return EXIT_FAILURE;

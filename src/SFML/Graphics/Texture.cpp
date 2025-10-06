@@ -750,7 +750,7 @@ void Texture::update(const Window& window, Vector2u dest)
     assert(dest.x + window.getSize().x <= m_size.x && "Destination x coordinate is outside of texture");
     assert(dest.y + window.getSize().y <= m_size.y && "Destination y coordinate is outside of texture");
 
-    if (!m_texture || !window.setActive(true))
+    if (!m_texture || !window.activate())
     {
         return;
     }

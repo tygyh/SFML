@@ -326,7 +326,8 @@ public:
     /// \return `true` if operation was successful, `false` otherwise
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool setActive(bool active = true) const;
+    [[nodiscard]] bool activate() const;
+    [[nodiscard]] bool deactivate() const;
 
     ////////////////////////////////////////////////////////////
     /// \brief Display on screen what has been rendered to the window so far
@@ -410,7 +411,7 @@ private:
 ///    }
 ///
 ///    // Activate the window for OpenGL rendering
-///    window.setActive();
+///    window.activate();
 ///
 ///    // OpenGL drawing commands go here...
 ///

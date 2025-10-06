@@ -33,7 +33,7 @@ int main()
     sf::Window window(sf::VideoMode({640, 480}), "SFML window with OpenGL", sf::Style::Default, sf::State::Windowed, contextSettings);
 
     // Make it the active window for OpenGL calls
-    if (!window.setActive())
+    if (!window.activate())
     {
         std::cerr << "Failed to set the window as active" << std::endl;
         return EXIT_FAILURE;

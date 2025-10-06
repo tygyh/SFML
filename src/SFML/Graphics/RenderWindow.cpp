@@ -85,7 +85,7 @@ bool RenderWindow::isSrgb() const
 bool RenderWindow::activate()
 {
 
-    if (!Window::setActive(true) || !RenderTarget::activate())
+    if (!Window::activate() || !RenderTarget::activate())
         return false;
 
     // If FBOs are available, make sure none are bound when we
@@ -99,7 +99,7 @@ bool RenderWindow::activate()
 bool RenderWindow::deactivate()
 {
     // Update RenderTarget tracking
-    return Window::setActive(false) ? RenderTarget::deactivate() : false;
+    return Window::deactivate() ? RenderTarget::deactivate() : false;
 }
 
 ////////////////////////////////////////////////////////////
