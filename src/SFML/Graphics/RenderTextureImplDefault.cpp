@@ -70,11 +70,16 @@ bool RenderTextureImplDefault::create(Vector2u size, unsigned int, const Context
 
 
 ////////////////////////////////////////////////////////////
-bool RenderTextureImplDefault::activate(bool active)
+bool RenderTextureImplDefault::activate()
 {
-    return active ? m_context->activate() : m_context->deactivate();
+    return m_context->activate();
 }
 
+////////////////////////////////////////////////////////////
+bool RenderTextureImplDefault::deactivate()
+{
+    return m_context->deactivate();
+}
 
 ////////////////////////////////////////////////////////////
 bool RenderTextureImplDefault::isSrgb() const

@@ -87,12 +87,11 @@ private:
     ////////////////////////////////////////////////////////////
     /// \brief Activate or deactivate the render texture for rendering
     ///
-    /// \param active `true` to activate, `false` to deactivate
-    ///
     /// \return `true` on success, `false` on failure
     ///
     ////////////////////////////////////////////////////////////
-    bool activate(bool active) override;
+    bool activate() override;
+    bool deactivate() override;
 
     ////////////////////////////////////////////////////////////
     /// \brief Tell if the render-texture will use sRGB encoding when drawing on it

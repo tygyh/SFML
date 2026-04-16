@@ -156,7 +156,7 @@ bool RenderTexture::generateMipmap()
 bool RenderTexture::activate()
 {
     // Activate RenderTarget tracking
-    return m_impl && m_impl->activate(true) ? RenderTarget::activate() : false;
+    return m_impl && m_impl->activate() ? RenderTarget::activate() : false;
 }
 
 
@@ -164,7 +164,7 @@ bool RenderTexture::activate()
 bool RenderTexture::deactivate()
 {
     // Deactivate RenderTarget tracking
-    return m_impl && m_impl->activate(false) ? RenderTarget::deactivate() : false;
+    return m_impl && m_impl->deactivate() ? RenderTarget::deactivate() : false;
 }
 
 
