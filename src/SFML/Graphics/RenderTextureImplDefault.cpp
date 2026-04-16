@@ -72,7 +72,7 @@ bool RenderTextureImplDefault::create(Vector2u size, unsigned int, const Context
 ////////////////////////////////////////////////////////////
 bool RenderTextureImplDefault::activate(bool active)
 {
-    return m_context->setActive(active);
+    return active ? m_context->activate() : m_context->deactivate();
 }
 
 

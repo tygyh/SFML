@@ -100,12 +100,11 @@ public:
     ////////////////////////////////////////////////////////////
     /// \brief Activate or deactivate explicitly the context
     ///
-    /// \param active `true` to activate, `false` to deactivate
-    ///
     /// \return `true` on success, `false` on failure
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool setActive(bool active);
+    [[nodiscard]] bool activate();
+    [[nodiscard]] bool deactivate() const;
 
     ////////////////////////////////////////////////////////////
     /// \brief Get the settings of the context

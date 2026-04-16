@@ -754,7 +754,7 @@ void DRMContext::destroySurface()
     m_gbmSurface = nullptr;
 
     // Ensure that this context is no longer active since our surface is now destroyed
-    setActive(false);
+    deactivate();
 }
 
 

@@ -525,7 +525,7 @@ bool RenderTextureImplFBO::activate(bool active)
         if (!m_context)
             m_context = std::make_unique<Context>();
 
-        if (!m_context->setActive(true))
+        if (!m_context->activate())
         {
             err() << "Failed to set context as active during render texture activation" << std::endl;
             return false;

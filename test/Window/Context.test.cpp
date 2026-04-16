@@ -49,7 +49,7 @@ TEST_CASE("[Window] sf::Context", runDisplayTests())
             SECTION("From inactive context")
             {
                 sf::Context movedContext;
-                CHECK(movedContext.setActive(false));
+                CHECK(movedContext.deactivate());
                 CHECK(sf::Context::getActiveContext() == nullptr);
                 CHECK(sf::Context::getActiveContextId() == 0);
 
@@ -66,7 +66,7 @@ TEST_CASE("[Window] sf::Context", runDisplayTests())
             {
                 sf::Context movedContext;
                 sf::Context context;
-                CHECK(movedContext.setActive(true));
+                CHECK(movedContext.activate());
                 CHECK(sf::Context::getActiveContext() == &movedContext);
                 CHECK(sf::Context::getActiveContextId() != 0);
 
@@ -79,7 +79,7 @@ TEST_CASE("[Window] sf::Context", runDisplayTests())
             SECTION("From inactive context")
             {
                 sf::Context movedContext;
-                CHECK(movedContext.setActive(false));
+                CHECK(movedContext.deactivate());
                 CHECK(sf::Context::getActiveContext() == nullptr);
                 CHECK(sf::Context::getActiveContextId() == 0);
 
@@ -98,12 +98,12 @@ TEST_CASE("[Window] sf::Context", runDisplayTests())
         const auto  contextId = sf::Context::getActiveContextId();
 
         // Set inactive
-        CHECK(context.setActive(false));
+        CHECK(context.deactivate());
         CHECK(sf::Context::getActiveContext() == nullptr);
         CHECK(sf::Context::getActiveContextId() == 0);
 
         // Set active
-        CHECK(context.setActive(true));
+        CHECK(context.activate());
         CHECK(sf::Context::getActiveContext() == &context);
         CHECK(sf::Context::getActiveContextId() == contextId);
 
@@ -114,12 +114,12 @@ TEST_CASE("[Window] sf::Context", runDisplayTests())
         CHECK(newContextId != 0);
 
         // Set old context as inactive but new context remains active
-        CHECK(context.setActive(false));
+        CHECK(context.deactivate());
         CHECK(sf::Context::getActiveContext() == &newContext);
         CHECK(sf::Context::getActiveContextId() == newContextId);
 
         // Set old context as active again
-        CHECK(context.setActive(true));
+        CHECK(context.activate());
         CHECK(sf::Context::getActiveContext() == &context);
         CHECK(sf::Context::getActiveContextId() == contextId);
     }
@@ -143,7 +143,7 @@ TEST_CASE("[Window] sf::Context", runDisplayTests())
     SECTION("Version String")
     {
         sf::Context context;
-        CHECK(context.setActive(true));
+        CHECK(context.activate());
 
         using glGetStringFuncType  = const char*(GLAPI*)(unsigned int);
         const auto glGetStringFunc = reinterpret_cast<glGetStringFuncType>(sf::Context::getFunction("glGetString"));

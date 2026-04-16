@@ -51,7 +51,7 @@ namespace sf
 ////////////////////////////////////////////////////////////
 Context::Context() : m_context(priv::GlContext::create())
 {
-    if (!setActive(true))
+    if (!activate())
         err() << "Failed to set context as active during construction" << std::endl;
 }
 
@@ -59,7 +59,7 @@ Context::Context() : m_context(priv::GlContext::create())
 ////////////////////////////////////////////////////////////
 Context::~Context()
 {
-    if (m_context && !setActive(false))
+    if (m_context && !deactivate())
         err() << "Failed to set context as inactive during destruction" << std::endl;
 }
 
@@ -87,19 +87,25 @@ Context& Context::operator=(Context&& context) noexcept
 
 
 ////////////////////////////////////////////////////////////
-bool Context::setActive(bool active)
+bool Context::activate()
 {
-    const bool isActive = active ? m_context->activate() : m_context->deactivate();
-    if (!isActive)
+    if (!m_context->activate())
         return false;
 
-    if (active)
-        ContextImpl::currentContext = this;
-    else if (this == ContextImpl::currentContext)
-        ContextImpl::currentContext = nullptr;
+    ContextImpl::currentContext = this;
     return true;
 }
 
+////////////////////////////////////////////////////////////
+bool Context::deactivate() const
+{
+    if (!m_context->deactivate())
+        return false;
+
+    if (this == ContextImpl::currentContext)
+        ContextImpl::currentContext = nullptr;
+    return true;
+}
 
 ////////////////////////////////////////////////////////////
 const ContextSettings& Context::getSettings() const
@@ -146,7 +152,7 @@ GlFunctionPointer Context::getFunction(const char* name)
 ////////////////////////////////////////////////////////////
 Context::Context(const ContextSettings& settings, Vector2u size) : m_context(priv::GlContext::create(settings, size))
 {
-    if (!setActive(true))
+    if (!activate())
         err() << "Failed to set context as active during construction" << std::endl;
 }
 
