@@ -115,9 +115,8 @@ TEST_CASE("[Graphics] sf::RenderTexture", runDisplayTests())
     SECTION("setActive()")
     {
         sf::RenderTexture renderTexture({64, 64});
-        CHECK(renderTexture.setActive());
-        CHECK(renderTexture.setActive(false));
-        CHECK(renderTexture.setActive(true));
+        CHECK(renderTexture.activate());
+        CHECK(renderTexture.deactivate());
     }
 
     SECTION("getTexture()")

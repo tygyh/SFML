@@ -211,12 +211,11 @@ public:
     /// want to draw OpenGL geometry to another render target
     /// (like a RenderWindow) don't forget to activate it again.
     ///
-    /// \param active `true` to activate, `false` to deactivate
-    ///
     /// \return `true` if operation was successful, `false` otherwise
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool setActive(bool active = true) override;
+    [[nodiscard]] bool activate() override;
+    [[nodiscard]] bool deactivate() override;
 
     ////////////////////////////////////////////////////////////
     /// \brief Update the contents of the target texture
