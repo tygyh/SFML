@@ -51,6 +51,14 @@ bool SoundFileWriterFlac::check(const std::filesystem::path& filename)
 }
 
 
+void SoundFileWriterFlac::build_remap_table(const unsigned int               channelCount,
+                                            const std::vector<SoundChannel>& channelMap,
+                                            const std::vector<SoundChannel>& targetChannelMap)
+{
+    for (auto i = 0u; i < channelCount; ++i)
+        m_remapTable[i] = static_cast<std::size_t>(
+            std::find(channelMap.begin(), channelMap.end(), targetChannelMap[i]) - channelMap.begin());
+}
 ////////////////////////////////////////////////////////////
 bool SoundFileWriterFlac::open(const std::filesystem::path&     filename,
                                unsigned int                     sampleRate,
@@ -123,10 +131,8 @@ bool SoundFileWriterFlac::open(const std::filesystem::path&     filename,
         return false;
     }
 
-    // Build the remap rable
-    for (auto i = 0u; i < channelCount; ++i)
-        m_remapTable[i] = static_cast<std::size_t>(
-            std::find(channelMap.begin(), channelMap.end(), targetChannelMap[i]) - channelMap.begin());
+    // Build the remap able
+    build_remap_table(channelCount, channelMap, targetChannelMap);
 
     // Create the encoder
     m_encoder.reset(FLAC__stream_encoder_new());

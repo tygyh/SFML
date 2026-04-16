@@ -57,6 +57,9 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     [[nodiscard]] static bool check(const std::filesystem::path& filename);
+    void                      build_remap_table(unsigned int                     channelCount,
+                                                const std::vector<SoundChannel>& channelMap,
+                                                const std::vector<SoundChannel>& targetChannelMap);
 
     ////////////////////////////////////////////////////////////
     /// \brief Open a sound file for writing
